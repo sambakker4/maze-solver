@@ -4,7 +4,7 @@ from point import Line
 class Window:
     def __init__(self, width, height):
         self.root_widget = Tk()
-        self.root_widget.title = "Maze Solver"
+        self.root_widget.title("Maze Solver")
         self.canvas = Canvas(self.root_widget, width=width, height=height)
         self.canvas.pack(fill=BOTH, expand=1)
         self.running = False
