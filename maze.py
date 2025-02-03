@@ -1,5 +1,6 @@
 from cell import Cell
 import time
+import random
 
 class Maze:
     def __init__(
@@ -10,7 +11,7 @@ class Maze:
         num_cols,
         cell_size_x,
         cell_size_y,
-        win,
+        win=None,
     ):
         self._x1 = x1
         self._y1 = y1
@@ -31,8 +32,13 @@ class Maze:
         for i in range(len(self._cells)):
             for j in range(len(self._cells[0])):
                 self._draw_cell(i, j)
+        
+        self._break_entrance_and_exit()
 
     def _draw_cell(self, i, j):
+        if self._win is None:
+            return
+
         x1 = self._x1 + (i * self.cell_size_x)
         y1 = self._y1 + (j * self.cell_size_y)
         x2 = x1 + self.cell_size_x
@@ -43,4 +49,10 @@ class Maze:
 
     def _animate(self):
         self._win.redraw()
-        time.sleep(0.1)
+        time.sleep(0.03)
+
+    def _break_entrance_and_exit(self):
+        self._cells[0][0].has_left_wall = False
+        self._draw_cell(0, 0)
+        self._cells[-1][-1].has_right_wall = False
+        self._draw_cell(len(self._cells) -1, len(self._cells[0]) -1) 
