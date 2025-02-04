@@ -120,3 +120,74 @@ class Maze:
         for i in range(self.num_cols):
             for j in range(self.num_rows):
                 self._cells[i][j].visited = False
+
+    def solve(self):
+        return self._solve_r(0, 0)
+
+    def _solve_r(self, i, j):
+        self._animate()
+
+        self._cells[i][j].visited = True
+
+        if self._cells[i][j] == self._cells[-1][-1]:
+            return True
+
+        directions = []
+
+        if i > 0:
+            directions.append((i - 1, j, "left"))
+ 
+        if i < len(self._cells) - 1:
+            directions.append((i + 1, j, "right"))
+
+        if j > 0:
+            directions.append((i, j - 1, "up"))
+
+        if j < len(self._cells[0]) - 1:
+            directions.append((i, j + 1, "down"))
+
+        for i2, j2, direction in directions:
+            if direction == "left":
+                if ((not self._cells[i][j].has_left_wall)
+                    and (not self._cells[i2][j2].has_right_wall)
+                    and (not self._cells[i2][j2].visited)):
+                    self._cells[i][j].draw_move(self._cells[i2][j2])
+
+                    if self._solve_r(i2, j2):
+                        return True
+                    
+                    self._cells[i][j].draw_move(self._cells[i2][j2], undo=True)
+
+            if direction == "right":
+                if ((not self._cells[i][j].has_right_wall)
+                    and (not self._cells[i2][j2].has_left_wall) 
+                    and (not self._cells[i2][j2].visited)):
+                    self._cells[i][j].draw_move(self._cells[i2][j2])
+
+                    if self._solve_r(i2, j2):
+                        return True
+                    
+                    self._cells[i][j].draw_move(self._cells[i2][j2], undo=True)
+
+            if direction == "up":
+                if ((not self._cells[i][j].has_top_wall)
+                    and (not self._cells[i2][j2].has_bottom_wall)
+                    and (not self._cells[i2][j2].visited)):
+                    self._cells[i][j].draw_move(self._cells[i2][j2])
+
+                    if self._solve_r(i2, j2):
+                        return True
+                    
+                    self._cells[i][j].draw_move(self._cells[i2][j2], undo=True)
+
+            if direction == "down":
+                if ((not self._cells[i][j].has_bottom_wall)
+                    and (not self._cells[i2][j2].has_top_wall)
+                    and (not self._cells[i2][j2].visited)):
+                    self._cells[i][j].draw_move(self._cells[i2][j2])
+
+                    if self._solve_r(i2, j2):
+                        return True
+                    
+                    self._cells[i][j].draw_move(self._cells[i2][j2], undo=True)
+        return False
