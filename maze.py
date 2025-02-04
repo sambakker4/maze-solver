@@ -12,6 +12,7 @@ class Maze:
         cell_size_x,
         cell_size_y,
         win=None,
+        seed=None
     ):
         self._x1 = x1
         self._y1 = y1
@@ -21,7 +22,12 @@ class Maze:
         self.cell_size_y = cell_size_y
         self._win = win
 
+        if seed is not None:
+            random.seed(seed)
+
+
         self._create_cells()
+
 
     def _create_cells(self):
         self._cells = []
@@ -34,6 +40,8 @@ class Maze:
                 self._draw_cell(i, j)
         
         self._break_entrance_and_exit()
+        self._break_walls_r(0, 0)
+        self._reset_cells_visited()
 
     def _draw_cell(self, i, j):
         if self._win is None:
@@ -49,10 +57,66 @@ class Maze:
 
     def _animate(self):
         self._win.redraw()
-        time.sleep(0.03)
+        time.sleep(0.01)
 
     def _break_entrance_and_exit(self):
         self._cells[0][0].has_left_wall = False
         self._draw_cell(0, 0)
         self._cells[-1][-1].has_right_wall = False
         self._draw_cell(len(self._cells) -1, len(self._cells[0]) -1) 
+        
+    def _break_walls_r(self, i, j):
+        self._cells[i][j].visited = True
+
+        while True:
+            to_visit = []
+
+            if i > 0:
+                if not self._cells[i - 1][j].visited:
+                    to_visit.append((self._cells[i - 1][j], "left"))
+
+            if i < self.num_cols - 1:
+                if not self._cells[i + 1][j].visited:
+                    to_visit.append((self._cells[i + 1][j], "right"))
+
+
+            if j > 0:
+                if not self._cells[i][j - 1].visited:
+                    to_visit.append((self._cells[i][j - 1], "up"))
+
+            if j < self.num_rows - 1:
+                if not self._cells[i][j + 1].visited:
+                    to_visit.append((self._cells[i][j + 1], "down"))
+
+
+            if len(to_visit) == 0:
+                self._draw_cell(i, j)
+                return
+
+            random_num = random.randrange(len(to_visit))
+            random_cell, direction = to_visit[random_num][0], to_visit[random_num][1]
+
+            if direction == "left":
+                self._cells[i][j].has_left_wall = False
+                random_cell.has_right_wall = False
+                self._break_walls_r(i - 1, j)
+
+            elif direction == "right":
+                self._cells[i][j].has_right_wall = False
+                random_cell.has_left_wall = False
+                self._break_walls_r(i + 1, j)
+
+            elif direction == "down":
+                self._cells[i][j].has_bottom_wall = False
+                random_cell.has_top_wall = False
+                self._break_walls_r(i, j + 1)
+
+            else:
+                self._cells[i][j].has_top_wall = False
+                random_cell.has_bottom_wall = False
+                self._break_walls_r(i, j - 1)
+    
+    def _reset_cells_visited(self):
+        for i in range(self.num_cols):
+            for j in range(self.num_rows):
+                self._cells[i][j].visited = False
